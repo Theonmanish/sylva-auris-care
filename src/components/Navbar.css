@@ -1,0 +1,16 @@
+.navbar
+    {
+        height: "64px";
+        display: "flex";
+        align-items: "center";
+        padding: "0 2rem";
+        border-bottom: "1px solid #e5e7eb";
+        background-color: "#ffffff";
+    }
+ .navbar-logo 
+    {
+        font-size: "1.2rem";
+        font-weight: 600;
+
+    }
+
