@@ -1,0 +1,52 @@
+:root {
+  /* Brand Colors */
+  --color-primary: #1F3D2B;
+  --color-primary-hover: #2E5B3F;
+  --color-accent: #7BAF8D;
+  --color-warning: #C4A96B;
+  --color-water: #6FA8DC;
+
+  /* Backgrounds */
+  --color-bg: #0F1412;
+  --color-card: #161D19;
+  --color-input-bg: #121814;
+
+  /* Borders */
+  --color-border: #2A332D;
+  --color-border-subtle: rgba(255, 255, 255, 0.04);
+  --color-border-glass: rgba(255, 255, 255, 0.05);
+
+  /* Text */
+  --color-text-primary: #E8EFEA;
+  --color-text-secondary: #A6B3A8;
+  --color-text-muted: #6B756E;
+
+  /* Status */
+  --color-low-bg: rgba(123, 175, 141, 0.15);
+  --color-low-text: #7BAF8D;
+  --color-moderate-bg: rgba(196, 169, 107, 0.15);
+  --color-moderate-text: #C4A96B;
+  --color-high-bg: rgba(180, 80, 80, 0.15);
+  --color-high-text: #c07070;
+
+  /* Spacing */
+  --space-1: 8px;
+  --space-2: 16px;
+  --space-3: 24px;
+  --space-4: 40px;
+  --space-5: 64px;
+
+  /* Typography */
+  --font-display: "Playfair Display", Georgia, serif;
+  --font-ui: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+
+  /* Radius */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
+  --radius-xl: 24px;
+
+  /* Shadows */
+  --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.4);
+  --shadow-hover: 0 8px 32px rgba(0, 0, 0, 0.5);
+}

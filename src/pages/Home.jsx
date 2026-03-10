@@ -1,73 +1,109 @@
-import { useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import terrariumDatabase from "../data/terrariumData";
 import "./Home.css";
 
+const karnatakaCities = [
+  "Bangalore", "Mysore", "Mangalore", "Udupi",
+  "Hubli", "Dharwad", "Belagavi", "Ballari",
+  "Kalaburagi", "Vijayapura", "Chikmagalur",
+  "Madikeri", "Shivamogga",
+];
 
 function Home() {
+  const [code, setCode] = useState("");
+  const [city, setCity] = useState("");
+  const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
-    
-    const navigate = useNavigate();
-    const [code,setCode] = useState("")
-    const [error,setError] = useState(null)
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const trimmedCode = code.trim().toUpperCase();
+    const pattern = /^SA-TRM-\d{4}$/;
 
-    const handleSubmit = (e) => {
+    if (!pattern.test(trimmedCode)) {
+      setError("Invalid format. Please use SA-TRM-XXXX.");
+      return;
+    }
+    if (!terrariumDatabase[trimmedCode]) {
+      setError("Code not found. Please check the label on your terrarium.");
+      return;
+    }
+    setError(null);
+    navigate(`/care/${trimmedCode}?city=${city}`);
+  };
 
-        e.preventDefault();
-        const trimmedCode = code.trim().toUpperCase();
+  return (
+    <main className="home">
 
-        //Regex pattern
-        const pattern = /^SA-TRM-\d{4}$/;
+      <div className="home-hero">
+        <p className="home-eyebrow">Care Companion</p>
+        <h1 className="home-title">Your Terrarium,<br />Understood.</h1>
+        <p className="home-desc">
+          Enter your unique terrarium code to receive a personalised,
+          season-aware care guide built for your ecosystem.
+        </p>
+      </div>
 
-        if (!pattern.test(trimmedCode)) {
-            setError("Invalid format. Use SA-TRM-XXXX");
-            return;
-        }
+      <div className="home-card">
+        <form className="home-form" onSubmit={handleSubmit}>
 
-        if (terrariumDatabase[trimmedCode]){
+          <div className="form-group">
+            <label htmlFor="code">Terrarium Code</label>
+            <input
+              id="code"
+              type="text"
+              placeholder="SA-TRM-2041"
+              value={code}
+              onChange={(e) => {
+                setCode(e.target.value);
+                setError(null);
+              }}
+              
+              spellCheck="false"
+            />
+          </div>
 
-            setError(null);
-            navigate(`/care/${trimmedCode}`);
-            
-        }
-        else {
-            setError("Code not found");
+          <div className="form-group">
+            <label htmlFor="city">
+              City
+              <span className="optional-badge">optional</span>
+            </label>
+            <select
+              id="city"
+              value={city}
+              onChange={(e) => setCity(e.target.value)}
+            >
+              <option value="">Select for climate guidance</option>
+              {karnatakaCities.map((c) => (
+                <option key={c} value={c}>{c}</option>
+              ))}
+            </select>
+          </div>
 
-        }
-    };
+          {error && (
+            <div className="form-error">
+              <span>⚠</span> {error}
+            </div>
+          )}
 
-    return (
+          <button
+            type="submit"
+            className="home-btn"
+            disabled={!code.trim()}
+          >
+            View Care Guide
+          </button>
 
-        <div className="home-container">
-            <h1>Sylva Auris</h1>
-            <h2>Enter your terrarium code to access the care guide.</h2>
+        </form>
 
-            <form onSubmit={handleSubmit}>
-                <input
-                    id="terrariumCode"
-                    name="terrariumCode"
-                    type="text"
-                    placeholder="Enter Code (e.g. SA-TRM-2041)"
-                    value={code}
-                    onChange={(e) => {
-                        setCode(e.target.value);
-                        setError(null);
-                    }}
-                    
-                />
+        <p className="home-hint">
+          Your code is printed on the card included with your terrarium.
+        </p>
+      </div>
 
-                <button type="submit" disabled={!code.trim()}>View Care Guide</button>
-
-            </form>
-
-            {error && 
-                <p className="error-text">{error}</p>
-            }
-        </div>
-
-
-       
-    );
+    </main>
+  );
 }
 
-export default Home
+export default Home;

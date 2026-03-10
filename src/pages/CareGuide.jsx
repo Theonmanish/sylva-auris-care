@@ -1,88 +1,147 @@
-import { useParams } from "react-router-dom"
-import { useEffect, useState } from "react";
-import terrariumDatabase from "../data/terrariumData";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { getTerrariumByCode } from "../api/terrariumApi";
-import "./CareGuide.css"
+import { generateCareGuide } from "../api/terrariumApi";
+import "./CareGuide.css";
 
-const CareGuide = () => {
+function CareGuide() {
+  const { code } = useParams();
+  const navigate = useNavigate();
+  const location = useLocation();
 
-    const navigate = useNavigate();
+  const params = new URLSearchParams(location.search);
+  const city = params.get("city") || "";
 
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-    const { code } = useParams();
+  useEffect(() => {
+    setLoading(true);
+    setError(null);
+    setData(null);
 
-    const [data, setData] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(false);
+    getTerrariumByCode(code)
+      .then((result) => {
+        const processed = generateCareGuide(result, city);
+        setData(processed);
+      })
+      .catch((err) => {
+        setError(err.message);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, [code, city]);
 
-
-
-
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                setLoading(true);
-                setError(null);
-
-                const result = await getTerrariumByCode(code);
-                setData(result);
-
-            } catch (err) {
-                setError(err.message);
-
-            } finally {
-                setLoading(false);
-
-            }
-        };
-
-        fetchData();
-
-    }, [code]);
-
-
-
-
-    if (loading) {
-        return <div className="spinner"></div>
-
-    }
-    if (error) {
-        return (
-            <div className="care-container">
-                <p className="error-text">
-                    {error}
-                </p>
-                <button onClick={() => window.location.reload()}>
-                    Retry
-                </button>
-            </div>
-        );
-    }
-
+  if (loading) {
     return (
-        <section className="care">
+      <div className="care-container">
+        <div className="spinner"></div>
+        <p className="status-text">Loading your care guide...</p>
+      </div>
+    );
+  }
 
-            <h2>Your Terrarium Care Guide</h2>
-            <h2>{data.name}</h2>
-            <p>Your terrrarium code: {code}</p>
-            <ul>
-                <li>💧 Watering: {data.watering}</li>
-                <li>☀️ Light: {data.sunlight}</li>
-                <li>Maintenance: {data.maintenance}</li>
-            </ul>
+  if (error) {
+    return (
+      <div className="care-container">
+        <p className="status-text error">{error}</p>
+        <button className="care-btn" onClick={() => navigate("/")}>
+          Back to Home
+        </button>
+      </div>
+    );
+  }
 
-            <p className="care-season">
-                Current season: Monsoon(India)
-            </p>
-            <button onClick={() => navigate("/")}>
-                Back to Home
-            </button>
+  return (
+    <div className="care-container">
 
-        </section>
-    )
+      {/* Header */}
+      <div className="care-header">
+        <h1>{data.name}</h1>
+        <p className="care-code">Code: {code}</p>
+      </div>
+
+      {/* Environmental Status */}
+      <div className={`stress-badge ${data.stressLevel}`}>
+        Environmental Risk: {data.stressLevel}
+      </div>
+
+      {/* Context Info */}
+      <div className="care-context">
+        <span>Season: <strong>{data.season}</strong></span>
+        {data.climate && (
+          <span>Climate Zone: <strong>{data.climate}</strong></span>
+        )}
+      </div>
+
+      {/* Section 1 — Overview */}
+      <div className="care-section">
+        <h3>Overview</h3>
+        <p>{data.overview}</p>
+      </div>
+
+      {/* Section 2 — Plants */}
+      <div className="care-section">
+        <h3>Plants Inside This Terrarium</h3>
+        <ul className="plant-list">
+          {data.plants.map((plant, index) => (
+            <li key={index}>{plant}</li>
+          ))}
+        </ul>
+      </div>
+
+      {/* Section 3 — Light */}
+      <div className="care-section">
+        <h3>Light Requirements</h3>
+        <p>{data.light}</p>
+      </div>
+
+      {/* Section 4 — Watering */}
+      <div className="care-section">
+        <h3>Watering Instructions</h3>
+        <p>{data.watering}</p>
+      </div>
+
+      {/* Section 5 — Humidity & Ventilation */}
+      <div className="care-section">
+        <h3>Humidity & Ventilation</h3>
+        <p>{data.humidity}</p>
+      </div>
+
+      {/* Section 6 — Maintenance */}
+      <div className="care-section">
+        <h3>Maintenance & Trimming</h3>
+        <p>{data.maintenance}</p>
+      </div>
+
+      {/* Section 7 — Seasonal Adjustments */}
+      <div className="care-section">
+        <h3>Seasonal Adjustments</h3>
+        <p>
+          Your terrarium is currently in <strong>{data.season}</strong> conditions.
+          {data.climate && ` Your ${data.climate} climate zone has also been factored into these recommendations.`}
+        </p>
+      </div>
+
+      {/* Section 8 — Common Problems */}
+      <div className="care-section">
+        <h3>Common Problems & Fixes</h3>
+        {data.commonProblems.map((item, index) => (
+          <div key={index} className="problem-item">
+            <p className="problem-title">⚠ {item.problem}</p>
+            <p className="problem-fix">→ {item.fix}</p>
+          </div>
+        ))}
+      </div>
+
+      <button className="care-btn" onClick={() => navigate("/")}>
+        Back to Home
+      </button>
+
+    </div>
+  );
 }
-
 
 export default CareGuide;
