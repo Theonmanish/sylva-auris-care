@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
-import { getTerrariumByCode } from "../api/terrariumApi";
-import { generateCareGuide } from "../api/terrariumApi";
+import { getTerrariumByCode, generateCareGuide } from "../api/terrariumApi";
 import "./CareGuide.css";
 
 function CareGuide() {
@@ -128,12 +127,18 @@ function CareGuide() {
       {/* Section 8 — Common Problems */}
       <div className="care-section">
         <h3>Common Problems & Fixes</h3>
-        {data.commonProblems.map((item, index) => (
-          <div key={index} className="problem-item">
-            <p className="problem-title">⚠ {item.problem}</p>
-            <p className="problem-fix">→ {item.fix}</p>
-          </div>
-        ))}
+        {data.commonProblems && data.commonProblems.length > 0 ? (
+          data.commonProblems.map((item, i) => (
+            <div key={i} className="problem-item">
+              <p className="problem-title">{item.problem}</p>
+              <p className="problem-fix">{item.fix}</p>
+            </div>
+          ))
+        ) : (
+          <p style={{ color: "var(--color-text-muted)", fontSize: "14px" }}>
+            No common problems listed for this terrarium.
+          </p>
+        )}
       </div>
 
       <button className="care-btn" onClick={() => navigate("/")}>

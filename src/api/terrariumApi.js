@@ -2,18 +2,51 @@ import terrariumDatabase from "../data/terrariumData";
 import { getCurrentSeason } from "../utils/seasonUtils";
 import { getClimateZone } from "../utils/climateUtils";
 
-// Fetch terrarium by code (simulated API call)
+// Reads admin-created terrariums from localStorage
+function getAdminTerrariums() {
+  try {
+    const stored = localStorage.getItem("sylva_terrariums");
+    if (!stored) return {};
+
+    const array = JSON.parse(stored);
+
+    // Convert array to object keyed by ID
+    // so lookup works the same way as terrariumData.js
+    const result = {};
+    array.forEach((t) => {
+      if (t.status === "live") {
+        result[t.id] = t;
+      }
+    });
+
+    return result;
+  } catch {
+    return {};
+  }
+}
+
+// Fetch terrarium by code — checks both sources
 export const getTerrariumByCode = (code) => {
   return new Promise((resolve, reject) => {
     setTimeout(() => {
-      const result = terrariumDatabase[code];
+      // Source 1 — Admin-created records (localStorage)
+      const adminRecords = getAdminTerrariums();
 
-      if (result) {
-        resolve(result);
-      } else {
-        reject(new Error("Terrarium not found. Please check your code."));
+      if (adminRecords[code]) {
+        resolve(adminRecords[code]);
+        return;
       }
-    }, 1000);
+
+      // Source 2 — Hardcoded fallback records
+      const hardcodedResult = terrariumDatabase[code];
+
+      if (hardcodedResult) {
+        resolve(hardcodedResult);
+        return;
+      }
+
+      reject(new Error("Terrarium not found. Please check your code."));
+    }, 800);
   });
 };
 
@@ -38,7 +71,6 @@ export function generateCareGuide(baseData, city) {
 
   let watering = baseData.watering;
 
-  // Seasonal modifier
   if (season === "Summer") {
     watering += " In summer, increase misting frequency slightly due to heat.";
   }
@@ -46,8 +78,6 @@ export function generateCareGuide(baseData, city) {
     watering +=
       " During monsoon, reduce watering — ambient humidity is naturally high.";
   }
-
-  // Climate modifier
   if (climate === "Coastal Humid") {
     watering +=
       " Coastal humidity is high — prioritise ventilation over watering.";

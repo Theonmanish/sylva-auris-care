@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import terrariumDatabase from "../data/terrariumData";
 import "./Home.css";
 
 const karnatakaCities = [
@@ -17,22 +16,19 @@ function Home() {
   const navigate = useNavigate();
 
   const handleSubmit = (e) => {
-    e.preventDefault();
-    const trimmedCode = code.trim().toUpperCase();
-    const pattern = /^SA-TRM-\d{4}$/;
+  e.preventDefault();
 
-    if (!pattern.test(trimmedCode)) {
-      setError("Invalid format. Please use SA-TRM-XXXX.");
-      return;
-    }
-    if (!terrariumDatabase[trimmedCode]) {
-      setError("Code not found. Please check the label on your terrarium.");
-      return;
-    }
-    setError(null);
-    navigate(`/care/${trimmedCode}?city=${city}`);
-  };
+  const trimmedCode = code.trim().toUpperCase();
+  const pattern = /^SA-TRM-\d{4}$/;
 
+  if (!pattern.test(trimmedCode)) {
+    setError("Invalid format. Please use SA-TRM-XXXX.");
+    return;
+  }
+
+  setError(null);
+  navigate(`/care/${trimmedCode}?city=${city}`);
+};
   return (
     <main className="home">
 
