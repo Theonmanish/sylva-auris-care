@@ -2,12 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { getTerrariumByCode, generateCareGuide } from "../api/terrariumApi";
 import "./CareGuide.css";
-import { testConnection } from "../api/supabaseApi";
 
-useEffect(() => {
-  testConnection();
-  // ... rest of your existing useEffect
-}, []);
 function CareGuide() {
   const { code } = useParams();
   const navigate = useNavigate();

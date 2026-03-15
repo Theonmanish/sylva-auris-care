@@ -81,11 +81,3 @@ function formatForDB(terrarium) {
     updated_at: new Date().toISOString(),
   };
 }
-export async function testConnection() {
-  const { data, error } = await supabase
-    .from("terrariums")
-    .select("*");
-
-  console.log("All records:", data);
-  console.log("Error:", error);
-}
