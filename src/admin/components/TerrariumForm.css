@@ -1,18 +1,18 @@
 .terrarium-form {
-  background: var(--color-card);
-  border: 1px solid var(--color-border-subtle);
-  border-radius: var(--radius-lg);
-  padding: var(--space-4);
-  margin-bottom: var(--space-3);
+  background: #161d19;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 12px;
+  padding: 40px;
+  margin-bottom: 24px;
   display: flex;
   flex-direction: column;
-  gap: var(--space-3);
+  gap: 24px;
 }
 
 .form-section-title {
   font-size: 13px;
   font-weight: 600;
-  color: var(--color-accent);
+  color: #7baf8d;
   text-transform: uppercase;
   letter-spacing: 0.12em;
 }
@@ -20,7 +20,7 @@
 .tf-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: var(--space-2);
+  gap: 16px;
 }
 
 .tf-group {
@@ -36,7 +36,7 @@
 .tf-group label {
   font-size: 12px;
   font-weight: 500;
-  color: var(--color-text-muted);
+  color: #6b756e;
   text-transform: uppercase;
   letter-spacing: 0.08em;
 }
@@ -44,53 +44,157 @@
 .tf-group input,
 .tf-group select,
 .tf-group textarea {
-  background: var(--color-input-bg);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
-  padding: 12px var(--space-2);
-  color: var(--color-text-primary);
+  background: #121814;
+  border: 1px solid #2a332d;
+  border-radius: 8px;
+  padding: 12px 16px;
+  color: #e8efea;
   font-size: 14px;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  font-family: "Inter", sans-serif;
+  transition: border-color 0.2s ease;
   resize: vertical;
 }
 
 .tf-group input::placeholder,
 .tf-group textarea::placeholder {
-  color: var(--color-text-muted);
+  color: #6b756e;
 }
 
 .tf-group select option {
-  background: var(--color-card);
-  color: var(--color-text-primary);
+  background: #161d19;
+  color: #e8efea;
 }
 
 .tf-group input:focus,
 .tf-group select:focus,
 .tf-group textarea:focus {
   outline: none;
-  border-color: var(--color-primary-hover);
-  box-shadow: 0 0 0 3px rgba(46, 91, 63, 0.2);
+  border-color: #2e5b3f;
+}
+
+.tf-group input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .tf-error {
   font-size: 12px;
-  color: var(--color-high-text);
+  color: #c07070;
 }
 
+/* Common Problems Section */
+.tf-problems-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 10px;
+  padding: 24px;
+}
+
+.tf-problems-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: #7baf8d;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.tf-problems-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.tf-problem-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 8px;
+  padding: 16px;
+  gap: 16px;
+}
+
+.tf-problem-text {
+  flex: 1;
+  font-size: 13px;
+  color: #a6b3a8;
+  line-height: 1.6;
+}
+
+.tf-problem-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #6b756e;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 2px;
+}
+
+.tf-remove-problem {
+  font-size: 12px;
+  color: #c07070;
+  background: transparent;
+  border: 1px solid rgba(180, 80, 80, 0.2);
+  border-radius: 6px;
+  padding: 4px 10px;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.tf-remove-problem:hover {
+  background: rgba(180, 80, 80, 0.1);
+}
+
+.tf-add-problem {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.tf-add-problem-btn {
+  background: transparent;
+  color: #7baf8d;
+  border: 1px solid rgba(123, 175, 141, 0.25);
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  align-self: flex-start;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tf-add-problem-btn:hover:not(:disabled) {
+  background: rgba(123, 175, 141, 0.08);
+}
+
+.tf-add-problem-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+/* Submit Button */
 .tf-submit {
-  background: var(--color-primary);
-  color: var(--color-text-primary);
+  background: #1f3d2b;
+  color: #e8efea;
   border: none;
-  border-radius: var(--radius-md);
-  padding: 14px var(--space-3);
+  border-radius: 10px;
+  padding: 14px 24px;
   font-size: 14px;
   font-weight: 500;
+  cursor: pointer;
   letter-spacing: 0.02em;
-  transition: background 0.2s ease, transform 0.15s ease;
   align-self: flex-start;
+  transition: background 0.2s ease;
 }
 
 .tf-submit:hover {
-  background: var(--color-primary-hover);
-  transform: scale(1.02);
+  background: #2e5b3f;
 }

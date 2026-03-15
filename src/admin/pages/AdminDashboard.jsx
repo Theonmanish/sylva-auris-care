@@ -3,36 +3,93 @@ import { useNavigate } from "react-router-dom";
 import { logout } from "../utils/adminAuth";
 import TerrariumForm from "../components/TerrariumForm";
 import "./AdminDashboard.css";
+import {
+  fetchAllTerrariums,
+  createTerrarium,
+  updateTerrarium,
+  deleteTerrarium,
+} from "../../api/supabaseApi";
+
 
 function AdminDashboard() {
   const [terrariums, setTerrariums] = useState([]);
   const [showForm, setShowForm] = useState(false);
+  const [editingTerrarium, setEditingTerrarium] = useState(null);
+  const [deleteConfirmId, setDeleteConfirmId] = useState(null);
   const navigate = useNavigate();
 
-  // Load terrariums from localStorage on mount
   useEffect(() => {
-    const stored = localStorage.getItem("sylva_terrariums");
-    if (stored) {
-      setTerrariums(JSON.parse(stored));
-    }
-  }, []);
+  fetchAllTerrariums()
+    .then((data) => {
+      const normalized = data.map((t) => ({
+        ...t,
+        commonProblems: t.common_problems || [],
+      }));
+      setTerrariums(normalized);
+    })
+    .catch(() => {
+      setTerrariums([]);
+    });
+}, []);
 
-  const handleAdd = (newTerrarium) => {
-    const updated = [...terrariums, newTerrarium];
+  const saveToStorage = (updated) => {
     setTerrariums(updated);
     localStorage.setItem("sylva_terrariums", JSON.stringify(updated));
+  };
+
+  const handleAdd = async (newTerrarium) => {
+  try {
+    const saved = await createTerrarium(newTerrarium);
+    const normalized = {
+      ...saved,
+      commonProblems: saved.common_problems || [],
+    };
+    setTerrariums((prev) => [normalized, ...prev]);
     setShowForm(false);
-  };
+  } catch (err) {
+    alert("Failed to save terrarium. Please try again.");
+  }
+};
 
-  const handleDelete = (id) => {
-    const updated = terrariums.filter((t) => t.id !== id);
-    setTerrariums(updated);
-    localStorage.setItem("sylva_terrariums", JSON.stringify(updated));
-  };
+  const handleEdit = async (updatedTerrarium) => {
+  try {
+    const saved = await updateTerrarium(updatedTerrarium);
+    const normalized = {
+      ...saved,
+      commonProblems: saved.common_problems || [],
+    };
+    setTerrariums((prev) =>
+      prev.map((t) => (t.id === normalized.id ? normalized : t))
+    );
+    setEditingTerrarium(null);
+  } catch (err) {
+    alert("Failed to update terrarium. Please try again.");
+  }
+};
+
+  const handleDeleteConfirm = async (id) => {
+  try {
+    await deleteTerrarium(id);
+    setTerrariums((prev) => prev.filter((t) => t.id !== id));
+    setDeleteConfirmId(null);
+  } catch (err) {
+    alert("Failed to delete terrarium. Please try again.");
+  }
+};
 
   const handleLogout = () => {
     logout();
     navigate("/admin");
+  };
+
+  const openEdit = (terrarium) => {
+    setEditingTerrarium(terrarium);
+    setShowForm(false);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const cancelEdit = () => {
+    setEditingTerrarium(null);
   };
 
   return (
@@ -73,20 +130,40 @@ function AdminDashboard() {
           </div>
         </div>
 
-        {/* Section Header */}
-        <div className="admin-section-header">
-          <h2>Terrarium Records</h2>
-          <button
-            className="admin-add-btn"
-            onClick={() => setShowForm(!showForm)}
-          >
-            {showForm ? "Cancel" : "+ Add Terrarium"}
-          </button>
-        </div>
+        {/* Edit Form */}
+        {editingTerrarium && (
+          <div className="admin-edit-section">
+            <div className="admin-section-header">
+              <h2>Editing — {editingTerrarium.name}</h2>
+              <button className="admin-cancel-btn" onClick={cancelEdit}>
+                Cancel
+              </button>
+            </div>
+            <TerrariumForm
+              onSubmit={handleEdit}
+              initialData={editingTerrarium}
+              isEditing={true}
+            />
+          </div>
+        )}
 
-        {/* Add Form */}
-        {showForm && (
-          <TerrariumForm onSubmit={handleAdd} />
+        {/* Add Section */}
+        {!editingTerrarium && (
+          <>
+            <div className="admin-section-header">
+              <h2>Terrarium Records</h2>
+              <button
+                className="admin-add-btn"
+                onClick={() => setShowForm(!showForm)}
+              >
+                {showForm ? "Cancel" : "+ Add Terrarium"}
+              </button>
+            </div>
+
+            {showForm && (
+              <TerrariumForm onSubmit={handleAdd} isEditing={false} />
+            )}
+          </>
         )}
 
         {/* Terrarium List */}
@@ -101,6 +178,7 @@ function AdminDashboard() {
           <div className="admin-terrarium-list">
             {terrariums.map((t) => (
               <div key={t.id} className="admin-terrarium-card">
+
                 <div className="admin-terrarium-info">
                   <div>
                     <p className="admin-terrarium-name">{t.name}</p>
@@ -110,18 +188,58 @@ function AdminDashboard() {
                     {t.status}
                   </span>
                 </div>
+
                 <div className="admin-terrarium-meta">
                   <span>{t.ecosystem}</span>
                   <span>{t.type}</span>
+                  <span>
+                    {t.plants && t.plants.length > 0
+                      ? `${t.plants.length} plant${t.plants.length > 1 ? "s" : ""}`
+                      : "No plants listed"}
+                  </span>
+                  <span>
+                    {t.commonProblems && t.commonProblems.length > 0
+                      ? `${t.commonProblems.length} problem${t.commonProblems.length > 1 ? "s" : ""}`
+                      : "No problems listed"}
+                  </span>
                 </div>
-                <div className="admin-terrarium-actions">
-                  <button
-                    className="admin-action-btn delete"
-                    onClick={() => handleDelete(t.id)}
-                  >
-                    Delete
-                  </button>
-                </div>
+
+                {/* Delete Confirmation */}
+                {deleteConfirmId === t.id ? (
+                  <div className="admin-delete-confirm">
+                    <p>Are you sure you want to delete this record?</p>
+                    <div className="admin-confirm-actions">
+                      <button
+                        className="admin-action-btn confirm-delete"
+                        onClick={() => handleDeleteConfirm(t.id)}
+                      >
+                        Yes, Delete
+                      </button>
+                      <button
+                        className="admin-action-btn cancel-delete"
+                        onClick={() => setDeleteConfirmId(null)}
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="admin-terrarium-actions">
+                    <button
+                      className="admin-action-btn edit"
+                      onClick={() => openEdit(t)}
+                    >
+                      Edit
+                    </button>
+                    <button
+                      className="admin-action-btn delete"
+                      onClick={() => setDeleteConfirmId(t.id)}
+                    >
+                      Delete
+                    </button>
+                  </div>
+                )}
+
               </div>
             ))}
           </div>

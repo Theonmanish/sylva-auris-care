@@ -5,22 +5,36 @@ const ecosystemOptions = ["Tropical", "Moss", "Desert", "Mixed"];
 const typeOptions = ["Closed", "Open", "Semi-closed"];
 const shapeOptions = ["Jar", "Bowl", "Cube", "Hanging", "Custom"];
 
-function TerrariumForm({ onSubmit }) {
-  const [form, setForm] = useState({
-    id: "",
-    name: "",
-    shape: "",
-    type: "",
-    ecosystem: "",
-    plants: "",
-    overview: "",
-    light: "",
-    watering: "",
-    humidity: "",
-    maintenance: "",
-    status: "draft",
+const emptyForm = {
+  id: "",
+  name: "",
+  shape: "",
+  type: "",
+  ecosystem: "",
+  plants: "",
+  overview: "",
+  light: "",
+  watering: "",
+  humidity: "",
+  maintenance: "",
+  status: "draft",
+  commonProblems: [],
+};
+
+function TerrariumForm({ onSubmit, initialData = null, isEditing = false }) {
+  const [form, setForm] = useState(() => {
+    if (initialData) {
+      return {
+        ...initialData,
+        plants: Array.isArray(initialData.plants)
+          ? initialData.plants.join(", ")
+          : initialData.plants || "",
+      };
+    }
+    return emptyForm;
   });
 
+  const [newProblem, setNewProblem] = useState({ problem: "", fix: "" });
   const [errors, setErrors] = useState({});
 
   const handleChange = (e) => {
@@ -29,19 +43,40 @@ function TerrariumForm({ onSubmit }) {
     setErrors((prev) => ({ ...prev, [name]: null }));
   };
 
+  const handleAddProblem = () => {
+    if (!newProblem.problem.trim() || !newProblem.fix.trim()) return;
+
+    setForm((prev) => ({
+      ...prev,
+      commonProblems: [...(prev.commonProblems || []), { ...newProblem }],
+    }));
+
+    setNewProblem({ problem: "", fix: "" });
+  };
+
+  const handleRemoveProblem = (index) => {
+    setForm((prev) => ({
+      ...prev,
+      commonProblems: prev.commonProblems.filter((_, i) => i !== index),
+    }));
+  };
+
   const validate = () => {
-    const required = ["id", "name", "type", "ecosystem", "overview",
-                      "light", "watering", "humidity", "maintenance"];
+    const required = [
+      "id", "name", "type", "ecosystem",
+      "overview", "light", "watering",
+      "humidity", "maintenance",
+    ];
     const newErrors = {};
 
     required.forEach((field) => {
-      if (!form[field].trim()) {
-        newErrors[field] = "This field is required.";
+      if (!form[field] || !form[field].toString().trim()) {
+        newErrors[field] = "Required.";
       }
     });
 
     const idPattern = /^SA-TRM-\d{4}$/;
-    if (form.id && !idPattern.test(form.id.trim())) {
+    if (form.id && !idPattern.test(form.id.trim().toUpperCase())) {
       newErrors.id = "Format must be SA-TRM-XXXX";
     }
 
@@ -57,22 +92,24 @@ function TerrariumForm({ onSubmit }) {
       return;
     }
 
-    const newTerrarium = {
+    const submitted = {
       ...form,
       id: form.id.trim().toUpperCase(),
       plants: form.plants
         .split(",")
         .map((p) => p.trim())
         .filter(Boolean),
-      commonProblems: [],
+      commonProblems: form.commonProblems || [],
     };
 
-    onSubmit(newTerrarium);
+    onSubmit(submitted);
   };
 
   return (
     <form className="terrarium-form" onSubmit={handleSubmit}>
-      <div className="form-section-title">New Terrarium Record</div>
+      <div className="form-section-title">
+        {isEditing ? "Edit Terrarium Record" : "New Terrarium Record"}
+      </div>
 
       <div className="tf-grid">
 
@@ -84,6 +121,8 @@ function TerrariumForm({ onSubmit }) {
             placeholder="SA-TRM-XXXX"
             value={form.id}
             onChange={handleChange}
+            disabled={isEditing}
+            style={isEditing ? { opacity: 0.5, cursor: "not-allowed" } : {}}
           />
           {errors.id && <span className="tf-error">{errors.id}</span>}
         </div>
@@ -236,8 +275,70 @@ function TerrariumForm({ onSubmit }) {
         )}
       </div>
 
+      {/* Common Problems Section */}
+      <div className="tf-problems-section">
+        <div className="tf-problems-title">Common Problems & Fixes</div>
+
+        {/* Existing Problems */}
+        {form.commonProblems && form.commonProblems.length > 0 && (
+          <div className="tf-problems-list">
+            {form.commonProblems.map((item, index) => (
+              <div key={index} className="tf-problem-item">
+                <div className="tf-problem-text">
+                  <p className="tf-problem-label">Problem</p>
+                  <p>{item.problem}</p>
+                  <p className="tf-problem-label" style={{ marginTop: "6px" }}>
+                    Fix
+                  </p>
+                  <p>{item.fix}</p>
+                </div>
+                <button
+                  type="button"
+                  className="tf-remove-problem"
+                  onClick={() => handleRemoveProblem(index)}
+                >
+                  Remove
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Add New Problem */}
+        <div className="tf-add-problem">
+          <div className="tf-group">
+            <label>Problem Description</label>
+            <input
+              placeholder="e.g. Mold on soil surface"
+              value={newProblem.problem}
+              onChange={(e) =>
+                setNewProblem((prev) => ({ ...prev, problem: e.target.value }))
+              }
+            />
+          </div>
+          <div className="tf-group">
+            <label>Fix</label>
+            <input
+              placeholder="e.g. Open lid daily for 2–3 days"
+              value={newProblem.fix}
+              onChange={(e) =>
+                setNewProblem((prev) => ({ ...prev, fix: e.target.value }))
+              }
+            />
+          </div>
+          <button
+            type="button"
+            className="tf-add-problem-btn"
+            onClick={handleAddProblem}
+            disabled={!newProblem.problem.trim() || !newProblem.fix.trim()}
+          >
+            + Add Problem
+          </button>
+        </div>
+      </div>
+
       <button type="submit" className="tf-submit">
-        Save Terrarium Record
+        {isEditing ? "Save Changes" : "Save Terrarium Record"}
       </button>
 
     </form>

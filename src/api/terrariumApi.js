@@ -1,52 +1,42 @@
 import terrariumDatabase from "../data/terrariumData";
 import { getCurrentSeason } from "../utils/seasonUtils";
 import { getClimateZone } from "../utils/climateUtils";
+import { fetchTerrariumById } from "./supabaseApi";
 
-// Reads admin-created terrariums from localStorage
-function getAdminTerrariums() {
-  try {
-    const stored = localStorage.getItem("sylva_terrariums");
-    if (!stored) return {};
-
-    const array = JSON.parse(stored);
-
-    // Convert array to object keyed by ID
-    // so lookup works the same way as terrariumData.js
-    const result = {};
-    array.forEach((t) => {
-      if (t.status === "live") {
-        result[t.id] = t;
-      }
-    });
-
-    return result;
-  } catch {
-    return {};
-  }
-}
-
-// Fetch terrarium by code — checks both sources
+// Fetch terrarium by code
+// Checks Supabase first, then falls back to hardcoded data
 export const getTerrariumByCode = (code) => {
   return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      // Source 1 — Admin-created records (localStorage)
-      const adminRecords = getAdminTerrariums();
+    fetchTerrariumById(code)
+      .then((supabaseResult) => {
+        if (supabaseResult) {
+          // Normalize snake_case DB fields to camelCase
+          const normalized = {
+            ...supabaseResult,
+            commonProblems: supabaseResult.common_problems || [],
+          };
+          resolve(normalized);
+          return;
+        }
 
-      if (adminRecords[code]) {
-        resolve(adminRecords[code]);
-        return;
-      }
+        // Fallback to hardcoded data
+        const hardcodedResult = terrariumDatabase[code];
+        if (hardcodedResult) {
+          resolve(hardcodedResult);
+          return;
+        }
 
-      // Source 2 — Hardcoded fallback records
-      const hardcodedResult = terrariumDatabase[code];
-
-      if (hardcodedResult) {
-        resolve(hardcodedResult);
-        return;
-      }
-
-      reject(new Error("Terrarium not found. Please check your code."));
-    }, 800);
+        reject(new Error("Terrarium not found. Please check your code."));
+      })
+      .catch(() => {
+        // If Supabase fails, try hardcoded fallback
+        const hardcodedResult = terrariumDatabase[code];
+        if (hardcodedResult) {
+          resolve(hardcodedResult);
+          return;
+        }
+        reject(new Error("Terrarium not found. Please check your code."));
+      });
   });
 };
 
