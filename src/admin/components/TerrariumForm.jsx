@@ -1,9 +1,11 @@
 import { useState } from "react";
 import "./TerrariumForm.css";
+import { generateTerrariumContent } from "../utils/groqAutofill";
 
 const ecosystemOptions = ["Tropical", "Moss", "Desert", "Mixed"];
 const typeOptions = ["Closed", "Open", "Semi-closed"];
 const shapeOptions = ["Jar", "Bowl", "Cube", "Hanging", "Custom"];
+
 
 const emptyForm = {
   id: "",
@@ -36,6 +38,8 @@ function TerrariumForm({ onSubmit, initialData = null, isEditing = false }) {
 
   const [newProblem, setNewProblem] = useState({ problem: "", fix: "" });
   const [errors, setErrors] = useState({});
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiError, setAiError] = useState(null);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -59,6 +63,45 @@ function TerrariumForm({ onSubmit, initialData = null, isEditing = false }) {
       ...prev,
       commonProblems: prev.commonProblems.filter((_, i) => i !== index),
     }));
+  };
+
+  const handleAutofill = async () => {
+    if (!form.plants.trim()) {
+      setAiError("Please enter at least one plant name before using AI autofill.");
+      return;
+    }
+
+    if (!form.type || !form.ecosystem) {
+      setAiError("Please select Type and Ecosystem before using AI autofill.");
+      return;
+    }
+
+    setAiLoading(true);
+    setAiError(null);
+
+    try {
+      const generated = await generateTerrariumContent({
+        plants: form.plants,
+        type: form.type,
+        shape: form.shape || "unspecified",
+        ecosystem: form.ecosystem,
+      });
+
+      setForm((prev) => ({
+        ...prev,
+        name: generated.name || prev.name,
+        overview: generated.overview || prev.overview,
+        light: generated.light || prev.light,
+        watering: generated.watering || prev.watering,
+        humidity: generated.humidity || prev.humidity,
+        maintenance: generated.maintenance || prev.maintenance,
+        commonProblems: generated.commonProblems || prev.commonProblems,
+      }));
+    } catch (err) {
+      setAiError("AI autofill failed. Please try again or fill in manually.");
+    } finally {
+      setAiLoading(false);
+    }
   };
 
   const validate = () => {
@@ -200,6 +243,44 @@ function TerrariumForm({ onSubmit, initialData = null, isEditing = false }) {
           value={form.plants}
           onChange={handleChange}
         />
+      </div>
+
+      {/* AI Autofill Section */}
+      <div className="tf-ai-section">
+        <div className="tf-ai-header">
+          <div className="tf-ai-info">
+            <p className="tf-ai-title">AI Care Assistant</p>
+            <p className="tf-ai-desc">
+              Fill in plants, type and ecosystem above. AI will generate
+              a suitable terrarium name and all care content automatically.
+            </p>
+          </div>
+          <button
+            type="button"
+            className={`tf-ai-btn ${aiLoading ? "loading" : ""}`}
+            onClick={handleAutofill}
+            disabled={aiLoading}
+          >
+            {aiLoading ? (
+              <>
+                <span className="tf-ai-spinner" />
+                Generating...
+              </>
+            ) : (
+              "✦ Autofill with AI"
+            )}
+          </button>
+        </div>
+
+        {aiError && (
+          <p className="tf-ai-error">⚠ {aiError}</p>
+        )}
+
+        {aiLoading && (
+          <div className="tf-ai-progress">
+            <div className="tf-ai-progress-bar" />
+          </div>
+        )}
       </div>
 
       {/* Overview */}

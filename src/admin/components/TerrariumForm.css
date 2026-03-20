@@ -208,3 +208,111 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* AI Autofill Section */
+.tf-ai-section {
+  border: 1px solid rgba(123, 175, 141, 0.2);
+  border-radius: 10px;
+  padding: 20px;
+  background: rgba(123, 175, 141, 0.04);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.tf-ai-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.tf-ai-info {
+  flex: 1;
+}
+
+.tf-ai-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #7baf8d;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 4px;
+}
+
+.tf-ai-desc {
+  font-size: 12px;
+  color: #6b756e;
+  line-height: 1.6;
+}
+
+.tf-ai-btn {
+  background: rgba(123, 175, 141, 0.12);
+  color: #7baf8d;
+  border: 1px solid rgba(123, 175, 141, 0.3);
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.tf-ai-btn:hover:not(:disabled) {
+  background: rgba(123, 175, 141, 0.2);
+  border-color: rgba(123, 175, 141, 0.5);
+}
+
+.tf-ai-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.tf-ai-btn.loading {
+  opacity: 0.8;
+}
+
+.tf-ai-spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(123, 175, 141, 0.3);
+  border-top: 2px solid #7baf8d;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  flex-shrink: 0;
+}
+
+.tf-ai-error {
+  font-size: 12px;
+  color: #c07070;
+  background: rgba(180, 80, 80, 0.08);
+  border: 1px solid rgba(180, 80, 80, 0.2);
+  border-radius: 6px;
+  padding: 8px 12px;
+}
+
+/* Progress Bar */
+.tf-ai-progress {
+  height: 2px;
+  background: rgba(123, 175, 141, 0.1);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.tf-ai-progress-bar {
+  height: 100%;
+  background: #7baf8d;
+  border-radius: 2px;
+  animation: progress 2s ease-in-out infinite;
+}
+
+@keyframes progress {
+  0% { width: 0%; margin-left: 0%; }
+  50% { width: 60%; margin-left: 20%; }
+  100% { width: 0%; margin-left: 100%; }
+}
