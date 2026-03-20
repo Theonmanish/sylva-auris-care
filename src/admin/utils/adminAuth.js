@@ -1,20 +1,29 @@
-const ADMIN_PASSWORD = "sylvaauris2025";
-const AUTH_KEY = "sylva_admin_auth";
+import supabase from "../../lib/supabaseClient";
 
-export function login(password){
-    if (password == ADMIN_PASSWORD) {
-        sessionStorage.setItem(AUTH_KEY, "true");
-        return true;
+// Sign in with email and password
+export async function login(email, password) {
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email,
+    password,
+  });
 
-    }
-    return false;
+  if (error) return { success: false, message: error.message };
+  return { success: true, session: data.session };
 }
 
-export function logout() {
-    sessionStorage.removeItem(AUTH_KEY);
-
+// Sign out
+export async function logout() {
+  await supabase.auth.signOut();
 }
 
-export function isAuthenticated(){
-    return sessionStorage.getItem(AUTH_KEY) == "true";
+// Check if user is currently authenticated
+export async function isAuthenticated() {
+  const { data } = await supabase.auth.getSession();
+  return !!data.session;
+}
+
+// Get current session
+export async function getSession() {
+  const { data } = await supabase.auth.getSession();
+  return data.session;
 }

@@ -34,14 +34,16 @@ function CareGuide() {
   }, [code, city]);
 
   if (loading) {
-    return (
-      <div className="care-container">
-        <div className="spinner"></div>
-        <p className="status-text">Loading your care guide...</p>
-      </div>
-    );
-  }
-
+  return (
+    <div className="care-container">
+      <div className="skeleton skeleton-title" />
+      <div className="skeleton skeleton-badge" />
+      <div className="skeleton skeleton-card" />
+      <div className="skeleton skeleton-card" />
+      <div className="skeleton skeleton-card" />
+    </div>
+  );
+}
   if (error) {
     return (
       <div className="care-container">

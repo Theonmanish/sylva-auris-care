@@ -57,3 +57,17 @@
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
+
+@media (max-width: 480px) {
+  .navbar-inner {
+    padding: 0 16px;
+  }
+
+  .navbar-name {
+    font-size: 1rem;
+  }
+
+  .navbar-sub {
+    font-size: 11px;
+  }
+}

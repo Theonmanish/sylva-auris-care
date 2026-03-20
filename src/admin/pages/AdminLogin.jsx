@@ -4,21 +4,27 @@ import { login } from "../utils/adminAuth";
 import "./AdminLogin.css";
 
 function AdminLogin() {
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    setError(null);
 
-    const success = login(password);
+    const result = await login(email, password);
 
-    if (success) {
+    if (result.success) {
       navigate("/admin/dashboard");
     } else {
-      setError("Incorrect password. Please try again.");
+      setError("Incorrect email or password. Please try again.");
       setPassword("");
     }
+
+    setLoading(false);
   };
 
   return (
@@ -34,6 +40,22 @@ function AdminLogin() {
         </div>
 
         <form className="admin-login-form" onSubmit={handleSubmit}>
+
+          <div className="admin-form-group">
+            <label htmlFor="email">Email</label>
+            <input
+              id="email"
+              type="email"
+              placeholder="Enter admin email"
+              value={email}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                setError(null);
+              }}
+              autoComplete="off"
+            />
+          </div>
+
           <div className="admin-form-group">
             <label htmlFor="password">Password</label>
             <input
@@ -45,7 +67,7 @@ function AdminLogin() {
                 setPassword(e.target.value);
                 setError(null);
               }}
-              autoComplete="current-password"
+              autoComplete="off"
             />
           </div>
 
@@ -58,16 +80,14 @@ function AdminLogin() {
           <button
             type="submit"
             className="admin-login-btn"
-            disabled={!password.trim()}
+            disabled={!email.trim() || !password.trim() || loading}
           >
-            Enter Dashboard
+            {loading ? "Signing in..." : "Enter Dashboard"}
           </button>
+
         </form>
 
-        
-         <a  href="/"
-          className="admin-back-link"
-        >
+        <a href="/" className="admin-back-link">
           ← Return to Care App
         </a>
 

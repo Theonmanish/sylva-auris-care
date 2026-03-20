@@ -198,3 +198,13 @@
 .tf-submit:hover {
   background: #2e5b3f;
 }
+
+@media (max-width: 768px) {
+  .terrarium-form {
+    padding: 24px 16px;
+  }
+
+  .tf-grid {
+    grid-template-columns: 1fr;
+  }
+}

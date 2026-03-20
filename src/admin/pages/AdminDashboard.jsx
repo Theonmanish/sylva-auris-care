@@ -12,6 +12,7 @@ import {
 
 
 function AdminDashboard() {
+  const [successMessage, setSuccessMessage] = useState(null);
   const [terrariums, setTerrariums] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [editingTerrarium, setEditingTerrarium] = useState(null);
@@ -19,18 +20,18 @@ function AdminDashboard() {
   const navigate = useNavigate();
 
   useEffect(() => {
-  fetchAllTerrariums()
-    .then((data) => {
-      const normalized = data.map((t) => ({
-        ...t,
-        commonProblems: t.common_problems || [],
-      }));
-      setTerrariums(normalized);
-    })
-    .catch(() => {
-      setTerrariums([]);
-    });
-}, []);
+    fetchAllTerrariums()
+      .then((data) => {
+        const normalized = data.map((t) => ({
+          ...t,
+          commonProblems: t.common_problems || [],
+        }));
+        setTerrariums(normalized);
+      })
+      .catch(() => {
+        setTerrariums([]);
+      });
+  }, []);
 
   const saveToStorage = (updated) => {
     setTerrariums(updated);
@@ -38,47 +39,50 @@ function AdminDashboard() {
   };
 
   const handleAdd = async (newTerrarium) => {
-  try {
-    const saved = await createTerrarium(newTerrarium);
-    const normalized = {
-      ...saved,
-      commonProblems: saved.common_problems || [],
-    };
-    setTerrariums((prev) => [normalized, ...prev]);
-    setShowForm(false);
-  } catch (err) {
-    alert("Failed to save terrarium. Please try again.");
-  }
-};
-
+    try {
+      const saved = await createTerrarium(newTerrarium);
+      const normalized = {
+        ...saved,
+        commonProblems: saved.common_problems || [],
+      };
+      setTerrariums((prev) => [normalized, ...prev]);
+      setShowForm(false);
+      setSuccessMessage("Terrarium saved successfully.");
+      setTimeout(() => setSuccessMessage(null), 3000);
+    } catch (err) {
+      alert("Failed to save terrarium. Please try again.");
+    }
+  };
   const handleEdit = async (updatedTerrarium) => {
-  try {
-    const saved = await updateTerrarium(updatedTerrarium);
-    const normalized = {
-      ...saved,
-      commonProblems: saved.common_problems || [],
-    };
-    setTerrariums((prev) =>
-      prev.map((t) => (t.id === normalized.id ? normalized : t))
-    );
-    setEditingTerrarium(null);
-  } catch (err) {
-    alert("Failed to update terrarium. Please try again.");
-  }
-};
+    try {
+      const saved = await updateTerrarium(updatedTerrarium);
+      const normalized = {
+        ...saved,
+        commonProblems: saved.common_problems || [],
+      };
+      setTerrariums((prev) =>
+        prev.map((t) => (t.id === normalized.id ? normalized : t))
+      );
+      setEditingTerrarium(null);
+      setSuccessMessage("Terrarium updated successfully.");
+      setTimeout(() => setSuccessMessage(null), 3000);
+    } catch (err) {
+      alert("Failed to update terrarium. Please try again.");
+    }
+  };
 
   const handleDeleteConfirm = async (id) => {
-  try {
-    await deleteTerrarium(id);
-    setTerrariums((prev) => prev.filter((t) => t.id !== id));
-    setDeleteConfirmId(null);
-  } catch (err) {
-    alert("Failed to delete terrarium. Please try again.");
-  }
-};
+    try {
+      await deleteTerrarium(id);
+      setTerrariums((prev) => prev.filter((t) => t.id !== id));
+      setDeleteConfirmId(null);
+    } catch (err) {
+      alert("Failed to delete terrarium. Please try again.");
+    }
+  };
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await logout();
     navigate("/admin");
   };
 
@@ -129,6 +133,12 @@ function AdminDashboard() {
             </p>
           </div>
         </div>
+
+        {successMessage && (
+          <div className="admin-success">
+            ✓ {successMessage}
+          </div>
+        )}
 
         {/* Edit Form */}
         {editingTerrarium && (

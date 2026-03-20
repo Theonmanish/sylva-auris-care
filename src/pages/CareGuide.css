@@ -217,3 +217,66 @@
 .status-text.error {
   color: var(--color-high-text);
 }
+
+/* Skeleton Loading */
+@keyframes shimmer {
+  0% { background-position: -700px 0; }
+  100% { background-position: 700px 0; }
+}
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    #161d19 25%,
+    #1e2a22 50%,
+    #161d19 75%
+  );
+  background-size: 700px 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 8px;
+  margin-bottom: 16px;
+}
+
+.skeleton-title {
+  height: 48px;
+  width: 60%;
+}
+
+.skeleton-badge {
+  height: 28px;
+  width: 160px;
+  border-radius: 20px;
+}
+
+.skeleton-card {
+  height: 100px;
+  width: 100%;
+  border-radius: 12px;
+}
+
+@media (max-width: 480px) {
+  .care-container {
+    padding: 24px 16px;
+  }
+
+  .care-header h1 {
+    font-size: 26px;
+  }
+
+  .care-context {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .care-section {
+    padding: 16px;
+  }
+
+  .plant-list {
+    gap: 6px;
+  }
+
+  .skeleton-title {
+    width: 80%;
+  }
+}
