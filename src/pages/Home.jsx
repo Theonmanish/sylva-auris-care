@@ -97,7 +97,7 @@ function Home() {
           Your code is printed on the card included with your terrarium.
         </p>
         <p className="home-hint">
-          Use "SA-TRM-2041 for a demo care guide"
+          Use "SA-TRM-2041" for a demo care guide.
         </p>
       </div>
 
