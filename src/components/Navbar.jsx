@@ -9,7 +9,7 @@ function Navbar() {
           <span className="navbar-logo"><img src="sylva.png" alt="logo" /></span>
          <div className="navbar-brand">
           
-            <a href="https://sylva-auris-landing.vercel.app/"
+            <a href="https://sylvaauris.in"
             className="navbar-name"
             target="_blank"
             rel="noopener noreferrer"
